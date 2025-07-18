@@ -1,5 +1,11 @@
 import dotenv from 'dotenv';
-dotenv.config();
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.join(__dirname, '../Backend/.env') });
 
 import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
 import { Pinecone } from '@pinecone-database/pinecone';
@@ -9,14 +15,15 @@ import { GoogleGenerativeAIEmbeddings } from '@langchain/community/embeddings/go
 
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 const PINECONE_API_KEY = process.env.PINECONE_API_KEY;
-const PINECONE_ENV = process.env.PINECONE_ENV;
+const PINECONE_ENVIRONMENT = process.env.PINECONE_ENVIRONMENT;
 const PINECONE_INDEX_NAME = process.env.PINECONE_INDEX_NAME || 'astrolynx-index';
+const PINECONE_PROJECT_NAME = process.env.PINECONE_PROJECT_NAME;
 
 // Helper: Load Pinecone retriever
 async function getRetriever() {
   const pinecone = new Pinecone({
     apiKey: PINECONE_API_KEY,
-    environment: PINECONE_ENV,
+    environment: PINECONE_ENVIRONMENT,
   });
   const index = pinecone.Index(PINECONE_INDEX_NAME);
   const vectorStore = await PineconeStore.fromExistingIndex(
