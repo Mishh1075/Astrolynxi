@@ -21,12 +21,22 @@ console.log("✅ Loaded ENV vars:", {
 
 // ⬇️ Only after that, import any other stuff like Pinecone
 import { embedDocuments } from './rag-pipeline/embedDocuments.js';
-import { fetchMosdacUrlsFromSitemap } from './scripts/parse-sitemap.js';
+// Import the new crawler function
+import { crawlWebsiteForUrls } from './scripts/crawl-site.js';
 
 (async () => {
   try {
-    console.log('📡 Reading from MOSDAC sitemap...');
-    const { htmlUrls, pdfUrls, docxUrls, xlsxUrls } = await fetchMosdacUrlsFromSitemap();
+    console.log('📡 Starting comprehensive website crawl for mosdac.gov.in...');
+    const baseUrl = 'https://mosdac.gov.in/';
+    const maxCrawlDepth = 2; // You can adjust this depth
+    const { htmlUrls, pdfUrls, docxUrls, xlsxUrls } = await crawlWebsiteForUrls(baseUrl, maxCrawlDepth);
+
+    console.log('🧭 Crawl complete:');
+    console.log(`🔗 HTML URLs found: ${htmlUrls.length}`);
+    console.log(`📄 PDF URLs found: ${pdfUrls.length}`);
+    console.log(`📝 DOCX URLs found: ${docxUrls.length}`);
+    console.log(`📊 XLSX URLs found: ${xlsxUrls.length}`);
+    console.log(`Total unique URLs found: ${htmlUrls.length + pdfUrls.length + docxUrls.length + xlsxUrls.length}`);
 
     console.log('🧪 Loading and embedding documents...');
     const res = await embedDocuments({ htmlUrls, pdfUrls, docxUrls, xlsxUrls });
