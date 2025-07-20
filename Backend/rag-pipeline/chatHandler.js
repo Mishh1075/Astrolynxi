@@ -9,9 +9,9 @@ dotenv.config({ path: path.join(__dirname, '../Backend/.env') });
 
 import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
 import { Pinecone } from '@pinecone-database/pinecone';
-import { ConversationalRetrievalQAChain } from '@langchain/community/chains';
+import { ConversationalRetrievalQAChain } from 'langchain/chains';
 import { PineconeStore } from '@langchain/community/vectorstores/pinecone';
-import { GoogleGenerativeAIEmbeddings } from '@langchain/community/embeddings/googlevertexai';
+import { GoogleGenerativeAIEmbeddings } from '@langchain/google-genai';
 
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 const PINECONE_API_KEY = process.env.PINECONE_API_KEY;
@@ -23,7 +23,6 @@ const PINECONE_PROJECT_NAME = process.env.PINECONE_PROJECT_NAME;
 async function getRetriever() {
   const pinecone = new Pinecone({
     apiKey: PINECONE_API_KEY,
-    environment: PINECONE_ENVIRONMENT,
   });
   const index = pinecone.Index(PINECONE_INDEX_NAME);
   const vectorStore = await PineconeStore.fromExistingIndex(
@@ -38,7 +37,7 @@ export async function askAstroLynx(message, history = []) {
   const retriever = await getRetriever();
   const llm = new ChatGoogleGenerativeAI({
     apiKey: GOOGLE_API_KEY,
-    model: 'gemini-pro',
+    model: 'gemini-1.5-flash-latest',
     temperature: 0.2,
   });
   const chain = ConversationalRetrievalQAChain.fromLLM(llm, retriever, {

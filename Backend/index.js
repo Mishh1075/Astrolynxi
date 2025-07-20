@@ -1,10 +1,11 @@
+import 'dotenv/config'; // This line loads your .env file
+
+// Add this line to check the variable:
+console.log('PINECONE_API_KEY loaded:', process.env.PINECONE_API_KEY);
+
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
-import dotenv from 'dotenv';
-
-// Load environment variables
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;

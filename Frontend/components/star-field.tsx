@@ -1,9 +1,8 @@
 "use client"
 
 import { useEffect, useRef } from "react"
-import { motion } from "framer-motion"
 
-export function StarfieldBackground() {
+export function StarField() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
@@ -28,14 +27,16 @@ export function StarfieldBackground() {
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
         size: Math.random() * 2,
-        opacity: Math.random() * 0.8 + 0.2,
+        opacity: Math.random(),
       })
     }
 
     let animationId: number
+
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height)
 
+      // Draw static stars with subtle twinkling
       stars.forEach((star) => {
         ctx.beginPath()
         ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2)
@@ -43,8 +44,8 @@ export function StarfieldBackground() {
         ctx.fill()
 
         // Subtle twinkling effect
-        star.opacity += (Math.random() - 0.5) * 0.02
-        star.opacity = Math.max(0.1, Math.min(0.9, star.opacity))
+        star.opacity += (Math.random() - 0.5) * 0.01
+        star.opacity = Math.max(0.1, Math.min(1, star.opacity))
       })
 
       animationId = requestAnimationFrame(animate)
@@ -58,13 +59,5 @@ export function StarfieldBackground() {
     }
   }, [])
 
-  return (
-    <motion.canvas
-      ref={canvasRef}
-      className="fixed inset-0 z-0 pointer-events-none"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 2 }}
-    />
-  )
+  return <canvas ref={canvasRef} className="fixed inset-0 z-0 pointer-events-none" />
 }

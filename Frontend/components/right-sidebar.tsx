@@ -1,130 +1,93 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { motion } from "framer-motion"
-import { Network, Download, Lightbulb, RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { mockGraphQLEndpoint } from "@/lib/mock-api"
-import type { KnowledgeGraphNode, SuggestedQuery } from "@/lib/types"
+import { KnowledgeGraphPreview } from "@/components/knowledge-graph-preview"
+import { Download, Lightbulb, TrendingUp } from "lucide-react"
 
 export function RightSidebar() {
-  const [knowledgeGraph, setKnowledgeGraph] = useState<KnowledgeGraphNode[]>([])
-  const [suggestedQueries, setSuggestedQueries] = useState<SuggestedQuery[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [suggestedQueries] = useState([
+    "Show me latest Chandrayaan-3 images",
+    "What's the weather forecast for Mumbai?",
+    "Track INSAT-3DR satellite position",
+    "Analyze crop health in Punjab region",
+    "Show cyclone data for Bay of Bengal",
+  ])
 
-  useEffect(() => {
-    const loadData = async () => {
-      setIsLoading(true)
-      try {
-        const [graphData, queriesData] = await Promise.all([
-          mockGraphQLEndpoint.getKnowledgeGraph(),
-          mockGraphQLEndpoint.getSuggestedQueries(),
-        ])
-        setKnowledgeGraph(graphData)
-        setSuggestedQueries(queriesData)
-      } catch (error) {
-        console.error("Failed to load data:", error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    loadData()
-  }, [])
-
-  const KnowledgeGraphPreview = () => (
-    <Card className="bg-slate-800/50 border-slate-600/30">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-white flex items-center gap-2">
-          <Network className="w-5 h-5" />
-          Knowledge Graph
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        {isLoading ? (
-          <div className="flex items-center justify-center h-32">
-            <RefreshCw className="w-6 h-6 text-slate-400 animate-spin" />
-          </div>
-        ) : (
-          <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-2">
-              {knowledgeGraph.slice(0, 6).map((node) => (
-                <motion.div
-                  key={node.id}
-                  className="p-2 bg-slate-700/50 rounded-lg text-center"
-                  whileHover={{ scale: 1.05 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <div className="text-xs text-slate-300 mb-1">{node.label}</div>
-                  <Badge
-                    variant="outline"
-                    className={`text-xs ${
-                      node.type === "mission"
-                        ? "border-orange-500 text-orange-300"
-                        : node.type === "satellite"
-                          ? "border-blue-500 text-blue-300"
-                          : "border-green-500 text-green-300"
-                    }`}
-                  >
-                    {node.type}
-                  </Badge>
-                </motion.div>
-              ))}
-            </div>
-            <div className="text-xs text-slate-400 text-center">
-              {knowledgeGraph.length} nodes • Live data from MOSDAC
-            </div>
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  )
+  const handleGenerateReport = () => {
+    // Mock PDF generation
+    console.log("Generating PDF report...")
+  }
 
   return (
     <motion.aside
-      className="w-80 bg-slate-900/60 backdrop-blur-md border-l border-slate-700/50 p-6 overflow-y-auto space-y-6"
-      initial={{ x: 320, opacity: 0 }}
+      initial={{ x: 300, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
-      transition={{ duration: 0.8, delay: 0.4 }}
+      transition={{ duration: 0.8, delay: 1.0 }}
+      className="w-80 bg-slate-900/50 backdrop-blur-md border-l border-blue-500/20 p-6 overflow-y-auto space-y-6"
     >
       {/* Knowledge Graph Preview */}
-      <KnowledgeGraphPreview />
+      <Card className="bg-slate-800/50 border-slate-700">
+        <CardHeader>
+          <CardTitle className="text-blue-300 flex items-center text-sm">
+            <TrendingUp className="w-4 h-4 mr-2" />
+            Knowledge Graph
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <KnowledgeGraphPreview />
+        </CardContent>
+      </Card>
 
       {/* Suggested Queries */}
-      <Card className="bg-slate-800/50 border-slate-600/30">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-white flex items-center gap-2">
-            <Lightbulb className="w-5 h-5" />
+      <Card className="bg-slate-800/50 border-slate-700">
+        <CardHeader>
+          <CardTitle className="text-blue-300 flex items-center text-sm">
+            <Lightbulb className="w-4 h-4 mr-2" />
             Suggested Queries
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
-          {suggestedQueries.map((query) => (
-            <motion.button
-              key={query.id}
-              className="w-full p-3 text-left bg-slate-700/30 hover:bg-slate-700/50 rounded-lg transition-colors"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+          {suggestedQueries.map((query, index) => (
+            <button
+              key={index}
+              className="w-full text-left p-2 rounded-lg bg-slate-700/50 hover:bg-slate-700 transition-colors text-sm text-slate-300 hover:text-white"
             >
-              <div className="text-sm text-white mb-1">{query.text}</div>
-              <Badge variant="outline" className="text-xs border-slate-500 text-slate-400">
-                {query.category}
-              </Badge>
-            </motion.button>
+              {query}
+            </button>
           ))}
         </CardContent>
       </Card>
 
       {/* Generate Report */}
-      <Card className="bg-slate-800/50 border-slate-600/30">
-        <CardContent className="pt-6">
-          <Button className="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white">
-            <Download className="w-4 h-4 mr-2" />
-            Generate Report
-          </Button>
-          <p className="text-xs text-slate-400 mt-2 text-center">Export current session as PDF</p>
+      <Button
+        onClick={handleGenerateReport}
+        className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700"
+      >
+        <Download className="w-4 h-4 mr-2" />
+        Generate Report
+      </Button>
+
+      {/* Live Stats */}
+      <Card className="bg-slate-800/50 border-slate-700">
+        <CardHeader>
+          <CardTitle className="text-blue-300 text-sm">Live Stats</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="flex justify-between text-sm">
+            <span className="text-slate-400">Active Satellites</span>
+            <span className="text-green-400 font-mono">47</span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-slate-400">Data Points</span>
+            <span className="text-blue-400 font-mono">2.3M</span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-slate-400">Queries Today</span>
+            <span className="text-cyan-400 font-mono">1,247</span>
+          </div>
         </CardContent>
       </Card>
     </motion.aside>

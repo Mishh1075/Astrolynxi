@@ -2,55 +2,61 @@
 
 import { useState } from "react"
 import { motion } from "framer-motion"
-import { Search, Filter, Languages } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Separator } from "@/components/ui/separator"
+import { Search, Satellite, Globe, Radar } from "lucide-react"
 
-export function LeftSidebar() {
+interface LeftSidebarProps {
+  selectedLanguage: string
+  setSelectedLanguage: (lang: string) => void
+  selectedFilters: {
+    mission: string
+    satellite: string
+    sensor: string
+  }
+  setSelectedFilters: (filters: any) => void
+}
+
+export function LeftSidebar({
+  selectedLanguage,
+  setSelectedLanguage,
+  selectedFilters,
+  setSelectedFilters,
+}: LeftSidebarProps) {
   const [searchQuery, setSearchQuery] = useState("")
-  const [selectedLanguage, setSelectedLanguage] = useState("en")
 
-  const missions = ["Chandrayaan-3", "Mangalyaan", "INSAT-3D", "CARTOSAT-3", "Oceansat-3"]
-  const satellites = ["VIKRAM", "PRAGYAN", "INSAT-3DR", "CARTOSAT-2E", "RESOURCESAT-2A"]
-  const sensors = ["LHDAC", "LIBS", "VHRR", "PAN", "LISS-4"]
+  const missions = ["Chandrayaan-3", "Mangalyaan", "INSAT-3DR", "RISAT-2B", "Cartosat-3"]
+  const satellites = ["INSAT-3D", "SCATSAT-1", "RESOURCESAT-2A", "OCEANSAT-2", "MEGHA-TROPIQUES"]
+  const sensors = ["VHRR", "CCD", "LISS-III", "LISS-IV", "AWiFS"]
 
   return (
     <motion.aside
-      className="w-full lg:w-80 bg-slate-900/60 backdrop-blur-md border-r border-slate-700/50 p-4 lg:p-6 overflow-y-auto max-h-screen"
-      initial={{ x: -320, opacity: 0 }}
+      initial={{ x: -300, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
-      transition={{ duration: 0.8, delay: 0.3 }}
+      transition={{ duration: 0.8, delay: 0.8 }}
+      className="w-80 bg-slate-900/50 backdrop-blur-md border-r border-blue-500/20 p-6 overflow-y-auto"
     >
-      <div className="space-y-4 lg:space-y-6">
+      <div className="space-y-6">
         {/* Search Bar */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-300">Quick Search</label>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <Input
-              placeholder="Search keywords..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-slate-800/50 border-slate-600 text-white placeholder-slate-400 h-10 lg:h-auto"
-            />
-          </div>
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+          <Input
+            placeholder="Search satellite data..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 bg-slate-800/50 border-slate-700 focus:border-blue-500 text-white placeholder-slate-400"
+          />
         </div>
 
-        <Separator className="bg-slate-700/50" />
-
         {/* Language Toggle */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-300 flex items-center gap-2">
-            <Languages className="w-4 h-4" />
-            Language
-          </label>
+        <div>
+          <label className="text-sm font-medium text-slate-300 mb-2 block">Language</label>
           <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
-            <SelectTrigger className="bg-slate-800/50 border-slate-600 text-white h-10">
+            <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="bg-slate-800 border-slate-600">
+            <SelectContent className="bg-slate-800 border-slate-700">
               <SelectItem value="en">English</SelectItem>
               <SelectItem value="hi">हिंदी</SelectItem>
               <SelectItem value="ta">தமிழ்</SelectItem>
@@ -59,64 +65,107 @@ export function LeftSidebar() {
           </Select>
         </div>
 
-        <Separator className="bg-slate-700/50" />
-
-        {/* Filters - Collapsible on mobile */}
-        <div className="space-y-3 lg:space-y-4">
-          <h3 className="text-sm font-medium text-slate-300 flex items-center gap-2">
-            <Filter className="w-4 h-4" />
-            Explore by Category
+        {/* Filters */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-blue-300 flex items-center">
+            <Globe className="w-5 h-5 mr-2" />
+            Explore by
           </h3>
 
-          {/* Missions - Grid layout on mobile */}
-          <div className="space-y-2">
-            <h4 className="text-xs font-medium text-slate-400 uppercase tracking-wide">Missions</h4>
-            <div className="grid grid-cols-1 gap-1">
-              {missions.map((mission) => (
-                <Button
-                  key={mission}
-                  variant="ghost"
-                  size="sm"
-                  className="w-full justify-start text-slate-300 hover:text-white hover:bg-slate-800/50 h-8 lg:h-auto text-xs lg:text-sm"
-                >
-                  {mission}
-                </Button>
-              ))}
-            </div>
+          {/* Mission Filter */}
+          <div>
+            <label className="text-sm font-medium text-slate-300 mb-2 block flex items-center">
+              <Satellite className="w-4 h-4 mr-2" />
+              Mission
+            </label>
+            <Select
+              value={selectedFilters.mission}
+              onValueChange={(value) => setSelectedFilters({ ...selectedFilters, mission: value })}
+            >
+              <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white">
+                <SelectValue placeholder="Select mission" />
+              </SelectTrigger>
+              <SelectContent className="bg-slate-800 border-slate-700">
+                {missions.map((mission) => (
+                  <SelectItem key={mission} value={mission}>
+                    {mission}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
-          {/* Similar updates for Satellites and Sensors sections */}
-          <div className="space-y-2">
-            <h4 className="text-xs font-medium text-slate-400 uppercase tracking-wide">Satellites</h4>
-            <div className="grid grid-cols-1 gap-1">
-              {satellites.map((satellite) => (
-                <Button
-                  key={satellite}
-                  variant="ghost"
-                  size="sm"
-                  className="w-full justify-start text-slate-300 hover:text-white hover:bg-slate-800/50 h-8 lg:h-auto text-xs lg:text-sm"
-                >
-                  {satellite}
-                </Button>
-              ))}
-            </div>
+          {/* Satellite Filter */}
+          <div>
+            <label className="text-sm font-medium text-slate-300 mb-2 block flex items-center">
+              <Satellite className="w-4 h-4 mr-2" />
+              Satellite
+            </label>
+            <Select
+              value={selectedFilters.satellite}
+              onValueChange={(value) => setSelectedFilters({ ...selectedFilters, satellite: value })}
+            >
+              <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white">
+                <SelectValue placeholder="Select satellite" />
+              </SelectTrigger>
+              <SelectContent className="bg-slate-800 border-slate-700">
+                {satellites.map((satellite) => (
+                  <SelectItem key={satellite} value={satellite}>
+                    {satellite}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
-          <div className="space-y-2">
-            <h4 className="text-xs font-medium text-slate-400 uppercase tracking-wide">Sensors</h4>
-            <div className="grid grid-cols-1 gap-1">
-              {sensors.map((sensor) => (
-                <Button
-                  key={sensor}
-                  variant="ghost"
-                  size="sm"
-                  className="w-full justify-start text-slate-300 hover:text-white hover:bg-slate-800/50 h-8 lg:h-auto text-xs lg:text-sm"
-                >
-                  {sensor}
-                </Button>
-              ))}
-            </div>
+          {/* Sensor Filter */}
+          <div>
+            <label className="text-sm font-medium text-slate-300 mb-2 block flex items-center">
+              <Radar className="w-4 h-4 mr-2" />
+              Sensor
+            </label>
+            <Select
+              value={selectedFilters.sensor}
+              onValueChange={(value) => setSelectedFilters({ ...selectedFilters, sensor: value })}
+            >
+              <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white">
+                <SelectValue placeholder="Select sensor" />
+              </SelectTrigger>
+              <SelectContent className="bg-slate-800 border-slate-700">
+                {sensors.map((sensor) => (
+                  <SelectItem key={sensor} value={sensor}>
+                    {sensor}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="space-y-2">
+          <h4 className="text-sm font-medium text-slate-300">Quick Actions</h4>
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full justify-start border-slate-700 text-slate-300 hover:bg-slate-800 bg-transparent"
+          >
+            View Live Weather Data
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full justify-start border-slate-700 text-slate-300 hover:bg-slate-800 bg-transparent"
+          >
+            Track Satellites
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full justify-start border-slate-700 text-slate-300 hover:bg-slate-800 bg-transparent"
+          >
+            Browse FAQs
+          </Button>
         </div>
       </div>
     </motion.aside>

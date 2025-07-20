@@ -1,116 +1,220 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { Navigation } from "@/components/navigation"
-import { StarfieldBackground } from "@/components/starfield-background"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Satellite, Database, MessageSquare, TrendingUp, Globe, Activity } from "lucide-react"
-import Link from "next/link"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { StarField } from "@/components/star-field"
+import { Satellite, Database, BarChart3, Globe, Zap, Clock, AlertCircle } from "lucide-react"
+import { InteractiveDashboard } from "@/components/interactive-dashboard"
 
-export default function Dashboard() {
-  const stats = [
-    { label: "Active Satellites", value: "47", icon: Satellite, color: "text-blue-400" },
-    { label: "Data Points", value: "2.3M", icon: Database, color: "text-green-400" },
-    { label: "Chat Sessions", value: "1,247", icon: MessageSquare, color: "text-purple-400" },
-    { label: "Queries Today", value: "892", icon: TrendingUp, color: "text-orange-400" },
+export default function DashboardPage() {
+  const [stats, setStats] = useState({
+    activeSatellites: 47,
+    dataPoints: 2.3,
+    queriesProcessed: 1247,
+    uptime: 99.9,
+  })
+
+  // Add real-time stats updates
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setStats((prev) => ({
+        activeSatellites: prev.activeSatellites + Math.floor(Math.random() * 3) - 1,
+        dataPoints: prev.dataPoints + (Math.random() * 0.1 - 0.05),
+        queriesProcessed: prev.queriesProcessed + Math.floor(Math.random() * 5),
+        uptime: Math.max(99.0, prev.uptime + (Math.random() * 0.2 - 0.1)),
+      }))
+    }, 3000)
+    return () => clearInterval(interval)
+  }, [])
+
+  const recentActivities = [
+    {
+      id: 1,
+      type: "data_update",
+      message: "INSAT-3D weather data updated",
+      time: "2 minutes ago",
+      icon: Satellite,
+      color: "text-blue-400",
+    },
+    {
+      id: 2,
+      type: "query",
+      message: "Spatial analysis completed for Mumbai region",
+      time: "5 minutes ago",
+      icon: BarChart3,
+      color: "text-green-400",
+    },
+    {
+      id: 3,
+      type: "alert",
+      message: "Cyclone monitoring activated for Bay of Bengal",
+      time: "12 minutes ago",
+      icon: AlertCircle,
+      color: "text-orange-400",
+    },
   ]
 
   const quickActions = [
-    { title: "Start Chat", description: "Ask questions about satellite data", href: "/chat", icon: MessageSquare },
-    { title: "Explore Data", description: "Browse MOSDAC portal data", href: "/data", icon: Database },
-    { title: "View Map", description: "Interactive satellite map", href: "/map", icon: Globe },
-    { title: "Analytics", description: "Data insights and reports", href: "/analytics", icon: Activity },
+    {
+      title: "Start Chat Session",
+      description: "Begin conversation with AstroLynx AI",
+      icon: Zap,
+      href: "/chat",
+      color: "from-blue-600 to-cyan-600",
+    },
+    {
+      title: "Browse Satellites",
+      description: "Explore active satellite missions",
+      icon: Satellite,
+      href: "/satellites/insat",
+      color: "from-purple-600 to-pink-600",
+    },
+    {
+      title: "Access Data Portal",
+      description: "View MOSDAC data repository",
+      icon: Database,
+      href: "/data/weather",
+      color: "from-green-600 to-emerald-600",
+    },
+    {
+      title: "Analytics Dashboard",
+      description: "Analyze satellite data trends",
+      icon: BarChart3,
+      href: "/analytics/timeseries",
+      color: "from-orange-600 to-red-600",
+    },
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      <StarfieldBackground />
-      <Navigation />
+    <div className="min-h-screen bg-slate-950 text-white relative overflow-hidden">
+      <StarField />
 
-      <main className="md:ml-64 relative z-10">
-        <div className="p-6 md:p-8">
-          {/* Header */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-            <h1 className="text-3xl font-bold text-white mb-2">Dashboard</h1>
-            <p className="text-slate-400">Welcome to AstroLynx - Your Geo-Aware Satellite AI Assistant</p>
-          </motion.div>
+      <div className="relative z-10 p-6 space-y-6">
+        {/* Welcome Section */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+          <div className="mb-8">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent mb-2">
+              Welcome to AstroLynx
+            </h1>
+            <p className="text-slate-400 text-lg">Your geo-aware satellite AI assistant for ISRO data navigation</p>
+          </div>
+        </motion.div>
 
-          {/* Stats Grid */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
-          >
-            {stats.map((stat, index) => (
-              <Card key={stat.label} className="bg-slate-800/50 border-slate-700/50">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-slate-400 text-sm">{stat.label}</p>
-                      <p className="text-2xl font-bold text-white">{stat.value}</p>
+        {/* Interactive Dashboard */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          <InteractiveDashboard />
+        </motion.div>
+
+        {/* Quick Actions */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+        >
+          <h2 className="text-2xl font-bold text-white mb-4">Quick Actions</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {quickActions.map((action, index) => (
+              <motion.div
+                key={action.title}
+                whileHover={{ scale: 1.05, y: -5 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                <Card className="bg-slate-900/50 border-slate-700 backdrop-blur-md hover:bg-slate-800/50 transition-all duration-300 cursor-pointer group h-full">
+                  <CardHeader>
+                    <div
+                      className={`w-12 h-12 rounded-lg bg-gradient-to-r ${action.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}
+                    >
+                      <action.icon className="w-6 h-6 text-white" />
                     </div>
-                    <stat.icon className={`w-8 h-8 ${stat.color}`} />
-                  </div>
-                </CardContent>
-              </Card>
+                    <CardTitle className="text-white group-hover:text-blue-300 transition-colors">
+                      {action.title}
+                    </CardTitle>
+                    <CardDescription className="text-slate-400">{action.description}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button
+                      asChild
+                      className="w-full bg-transparent border border-slate-600 hover:bg-slate-700 text-white"
+                    >
+                      <a href={action.href}>Get Started</a>
+                    </Button>
+                  </CardContent>
+                </Card>
+              </motion.div>
             ))}
-          </motion.div>
+          </div>
+        </motion.div>
 
-          {/* Quick Actions */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="mb-8"
-          >
-            <h2 className="text-xl font-semibold text-white mb-4">Quick Actions</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {quickActions.map((action) => (
-                <Link key={action.title} href={action.href}>
-                  <Card className="bg-slate-800/50 border-slate-700/50 hover:bg-slate-800/70 transition-colors cursor-pointer">
-                    <CardContent className="p-6">
-                      <action.icon className="w-8 h-8 text-blue-400 mb-3" />
-                      <h3 className="font-semibold text-white mb-2">{action.title}</h3>
-                      <p className="text-slate-400 text-sm">{action.description}</p>
-                    </CardContent>
-                  </Card>
-                </Link>
+        {/* Recent Activity */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.6 }}
+          className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+        >
+          <Card className="bg-slate-900/50 border-slate-700 backdrop-blur-md">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center">
+                <Clock className="w-5 h-5 mr-2 text-blue-400" />
+                Recent Activity
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {recentActivities.map((activity) => (
+                <motion.div
+                  key={activity.id}
+                  className="flex items-start space-x-3 p-2 rounded-lg hover:bg-slate-800/50 cursor-pointer transition-colors"
+                  whileHover={{ x: 5 }}
+                  onClick={() => console.log(`Clicked activity: ${activity.message}`)}
+                >
+                  <div className={`p-2 rounded-lg bg-slate-800 ${activity.color}`}>
+                    <activity.icon className="w-4 h-4" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm text-white">{activity.message}</p>
+                    <p className="text-xs text-slate-400">{activity.time}</p>
+                  </div>
+                </motion.div>
               ))}
-            </div>
-          </motion.div>
+            </CardContent>
+          </Card>
 
-          {/* Recent Activity */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-            <Card className="bg-slate-800/50 border-slate-700/50">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
-                  <Activity className="w-5 h-5" />
-                  Recent Activity
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {[
-                    { action: "New satellite data available", time: "2 minutes ago", type: "data" },
-                    { action: "Chat session completed", time: "15 minutes ago", type: "chat" },
-                    { action: "Report generated", time: "1 hour ago", type: "report" },
-                    { action: "System update deployed", time: "3 hours ago", type: "system" },
-                  ].map((item, index) => (
-                    <div key={index} className="flex items-center justify-between py-2">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                        <span className="text-white">{item.action}</span>
-                      </div>
-                      <span className="text-slate-400 text-sm">{item.time}</span>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </div>
-      </main>
+          <Card className="bg-slate-900/50 border-slate-700 backdrop-blur-md">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center">
+                <Globe className="w-5 h-5 mr-2 text-green-400" />
+                System Status
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-slate-300">MOSDAC Portal</span>
+                <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Online</Badge>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-slate-300">AI Assistant</span>
+                <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Active</Badge>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-slate-300">Data Processing</span>
+                <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">Running</Badge>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-slate-300">Satellite Tracking</span>
+                <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Operational</Badge>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
     </div>
   )
 }
