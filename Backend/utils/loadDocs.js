@@ -8,7 +8,21 @@ import path from 'path';
 
 // Clean text helper
 function cleanText(text) {
-  return text.replace(/\s+/g, ' ').replace(/\n+/g, ' ').trim();
+  return text
+    .replace(/\s+/g, ' ') // Normalize whitespace
+    .replace(/\n+/g, ' ') // Replace newlines with spaces
+    .replace(/[^\w\s\.\,\!\?\;\:\-\(\)\[\]\{\}\"\']/g, '') // Remove special characters but keep punctuation
+    .trim();
+}
+
+// Enhanced text preprocessing for better chunking
+function preprocessText(text) {
+  return text
+    .replace(/\s+/g, ' ')
+    .replace(/\n+/g, ' ')
+    .replace(/([.!?])\s+/g, '$1\n') // Add line breaks after sentences
+    .replace(/([.!?])\n+/g, '$1\n') // Normalize multiple line breaks
+    .trim();
 }
 
 // Scrape static HTML
@@ -17,13 +31,22 @@ async function scrapeHtmlPage(url) {
   const $ = cheerio.load(res.data);
   $('nav, footer, script, style, header, noscript, form, iframe, svg').remove();
   const title = $('title').text() || url;
-  const bodyText = cleanText($('body').text());
+  const bodyText = preprocessText($('body').text());
+  
+  // Extract headings for better context
+  const headings = [];
+  $('h1, h2, h3, h4, h5, h6').each((i, el) => {
+    headings.push($(el).text().trim());
+  });
+  
   return [{
     content: bodyText,
     metadata: {
       source: url,
       fileType: 'html',
-      title
+      title,
+      headings: headings.slice(0, 5), // Keep first 5 headings
+      wordCount: bodyText.split(' ').length,
     }
   }];
 }
@@ -31,17 +54,30 @@ async function scrapeHtmlPage(url) {
 // File parsers
 async function parsePdf(buffer, sourceUrl, title) {
   const data = await pdfParse(buffer);
+  const processedText = preprocessText(data.text);
   return [{
-    content: cleanText(data.text),
-    metadata: { source: sourceUrl, fileType: 'pdf', title }
+    content: processedText,
+    metadata: { 
+      source: sourceUrl, 
+      fileType: 'pdf', 
+      title,
+      pageCount: data.numpages,
+      wordCount: processedText.split(' ').length,
+    }
   }];
 }
 
 async function parseDocx(buffer, sourceUrl, title) {
   const result = await mammoth.extractRawText({ buffer });
+  const processedText = preprocessText(result.value);
   return [{
-    content: cleanText(result.value),
-    metadata: { source: sourceUrl, fileType: 'docx', title }
+    content: processedText,
+    metadata: { 
+      source: sourceUrl, 
+      fileType: 'docx', 
+      title,
+      wordCount: processedText.split(' ').length,
+    }
   }];
 }
 
@@ -49,14 +85,25 @@ async function parseXlsx(buffer, sourceUrl, title) {
   const workbook = new ExcelJS.Workbook();
   await workbook.xlsx.load(buffer);
   let allText = '';
+  const sheetNames = [];
+  
   workbook.eachSheet((sheet) => {
+    sheetNames.push(sheet.name);
     sheet.eachRow((row) => {
       allText += row.values.join(' ') + '\n';
     });
   });
+  
+  const processedText = preprocessText(allText);
   return [{
-    content: cleanText(allText),
-    metadata: { source: sourceUrl, fileType: 'xlsx', title }
+    content: processedText,
+    metadata: { 
+      source: sourceUrl, 
+      fileType: 'xlsx', 
+      title,
+      sheetNames: sheetNames.slice(0, 10), // Keep first 10 sheet names
+      wordCount: processedText.split(' ').length,
+    }
   }];
 }
 

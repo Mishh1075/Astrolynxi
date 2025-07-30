@@ -3,6 +3,7 @@
 import { motion } from "framer-motion"
 import { User, Bot, ExternalLink } from "lucide-react"
 import { Card } from "@/components/ui/card"
+import { useEffect, useState } from "react"
 
 interface Message {
   id: string
@@ -18,6 +19,19 @@ interface ChatMessageProps {
 
 export function ChatMessage({ message }: ChatMessageProps) {
   const isUser = message.type === "user"
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    })
+  }
 
   return (
     <motion.div
@@ -68,7 +82,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
 
           {/* Timestamp */}
           <p className={`text-xs text-slate-500 mt-1 ${isUser ? "text-right" : "text-left"}`}>
-            {message.timestamp.toLocaleTimeString()}
+            {mounted ? formatTime(message.timestamp) : ''}
           </p>
         </div>
       </div>

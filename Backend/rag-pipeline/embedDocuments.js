@@ -20,6 +20,7 @@ import { loadDocs } from '../utils/loadDocs.js';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { GoogleGenerativeAIEmbeddings } from '@langchain/google-genai';
 import { Pinecone } from '@pinecone-database/pinecone';
+import { RAG_CONFIG } from '../config/rag-config.js';
 
 // Polyfill fetch if needed (Node < 18)
 import fetch from 'node-fetch';
@@ -28,7 +29,7 @@ globalThis.fetch = fetch;
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 const PINECONE_API_KEY = process.env.PINECONE_API_KEY;
 const PINECONE_ENVIRONMENT = process.env.PINECONE_ENVIRONMENT;
-const PINECONE_INDEX_NAME = process.env.PINECONE_INDEX_NAME || 'astrolynx';
+const PINECONE_INDEX_NAME = process.env.PINECONE_INDEX_NAME || 'astrolynx-bot';
 
 // Helper: Initialize Pinecone client and index
 export function getPineconeIndex() {
@@ -116,10 +117,11 @@ export async function embedDocuments({ htmlUrls = [], pdfUrls = [], docxUrls = [
     console.warn("🚫 No documents loaded!");
   }
 
-  // 2. Chunk documents (200–500 tokens)
+  // 2. Chunk documents using configuration
   const splitter = new RecursiveCharacterTextSplitter({
-    chunkSize: 1500, // ~200-500 tokens (approx 4 chars/token)
-    chunkOverlap: 200,
+    chunkSize: RAG_CONFIG.chunking.chunkSize,
+    chunkOverlap: RAG_CONFIG.chunking.chunkOverlap,
+    separators: RAG_CONFIG.chunking.separators,
   });
   let allChunks = [];
   for (const doc of docs) {
